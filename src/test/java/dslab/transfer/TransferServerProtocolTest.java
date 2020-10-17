@@ -68,4 +68,70 @@ public class TransferServerProtocolTest extends TestBase {
         }
     }
 
+    @Test(timeout = 15000)
+    public void sendWithoutSender_returnsErrorOnSend() throws Exception {
+        try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
+            client.verify("ok DMTP");
+            client.sendAndVerify("begin", "ok");
+            client.sendAndVerify("to arthur@earth.planet", "ok 1");
+            client.sendAndVerify("subject hello", "ok");
+            client.sendAndVerify("data hello from junit", "ok");
+            client.sendAndVerify("send", "error");
+            client.sendAndVerify("quit", "ok bye");
+        }
+    }
+
+    @Test(timeout = 15000)
+    public void sendMalformedRecipient_returnsErrorOnSend_1() throws Exception {
+        try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
+            client.verify("ok DMTP");
+            client.sendAndVerify("begin", "ok");
+            client.sendAndVerify("from trillian@earth.planet", "ok");
+            client.sendAndVerify("to art@hur@earth.planet", "ok 1");
+            client.sendAndVerify("subject hello", "ok");
+            client.sendAndVerify("data hello from junit", "ok");
+            client.sendAndVerify("send", "error");
+            client.sendAndVerify("quit", "ok bye");
+        }
+    }
+
+    @Test(timeout = 15000)
+    public void sendMalformedRecipient_returnsErrorOnSend_2() throws Exception {
+        try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
+            client.verify("ok DMTP");
+            client.sendAndVerify("begin", "ok");
+            client.sendAndVerify("from trillian@earth.planet", "ok");
+            client.sendAndVerify("to arthur@", "ok 1");
+            client.sendAndVerify("subject hello", "ok");
+            client.sendAndVerify("data hello from junit", "ok");
+            client.sendAndVerify("send", "error");
+            client.sendAndVerify("quit", "ok bye");
+        }
+    }
+
+    @Test(timeout = 15000)
+    public void sendWithoutSubject_returnsOkOnSend() throws Exception {
+        try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
+            client.verify("ok DMTP");
+            client.sendAndVerify("begin", "ok");
+            client.sendAndVerify("from trillian@earth.planet", "ok");
+            client.sendAndVerify("to arthur@", "ok 1");
+            client.sendAndVerify("data hello from junit", "ok");
+            client.sendAndVerify("send", "ok");
+            client.sendAndVerify("quit", "ok bye");
+        }
+    }
+
+    @Test(timeout = 15000)
+    public void sendWithoutData_returnsOkOnSend() throws Exception {
+        try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
+            client.verify("ok DMTP");
+            client.sendAndVerify("begin", "ok");
+            client.sendAndVerify("from trillian@earth.planet", "ok");
+            client.sendAndVerify("to arthur@", "ok 1");
+            client.sendAndVerify("subject hello", "ok");
+            client.sendAndVerify("send", "ok");
+            client.sendAndVerify("quit", "ok bye");
+        }
+    }
 }
