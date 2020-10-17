@@ -38,7 +38,7 @@ public class TransferServer implements ITransferServer, Runnable {
         Config univerZe = new Config("mailbox-univer-ze");
         mailboxServers.add(earthPlanet);
         mailboxServers.add(univerZe);
-        Shell shell = new Shell().register("quit", (input, context) -> shutdown());
+        Shell shell = new Shell().register("shutdown", (input, context) -> shutdown());
         this.serverPort = config.getInt("tcp.port");
 
         shell.run();
