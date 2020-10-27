@@ -41,7 +41,7 @@ public class TransferServerProtocolTest extends TestBase {
         Thread.sleep(Constants.COMPONENT_TEARDOWN_WAIT);
     }
 
-    @Test(timeout = 15000)
+    @Test(timeout = 5000)
     public void defaultDmtpInteractionTest() throws Exception {
         try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
             client.verify("ok DMTP");
@@ -55,7 +55,7 @@ public class TransferServerProtocolTest extends TestBase {
         }
     }
 
-    @Test(timeout = 15000)
+    @Test(timeout = 5000)
     public void sendWithoutRecipient_returnsErrorOnSend() throws Exception {
         try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
             client.verify("ok DMTP");
@@ -68,7 +68,7 @@ public class TransferServerProtocolTest extends TestBase {
         }
     }
 
-    @Test(timeout = 15000)
+    @Test(timeout = 5000)
     public void sendWithoutSender_returnsErrorOnSend() throws Exception {
         try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
             client.verify("ok DMTP");
@@ -81,7 +81,7 @@ public class TransferServerProtocolTest extends TestBase {
         }
     }
 
-    @Test(timeout = 15000)
+    @Test(timeout = 5000)
     public void sendMalformedRecipient_returnsErrorOnSend_1() throws Exception {
         try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
             client.verify("ok DMTP");
@@ -95,7 +95,7 @@ public class TransferServerProtocolTest extends TestBase {
         }
     }
 
-    @Test(timeout = 15000)
+    @Test(timeout = 5000)
     public void sendMalformedRecipient_returnsErrorOnSend_2() throws Exception {
         try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
             client.verify("ok DMTP");
@@ -109,7 +109,7 @@ public class TransferServerProtocolTest extends TestBase {
         }
     }
 
-    @Test(timeout = 15000)
+    @Test(timeout = 5000)
     public void sendWithoutSubject_returnsOkOnSend() throws Exception {
         try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
             client.verify("ok DMTP");
@@ -122,7 +122,7 @@ public class TransferServerProtocolTest extends TestBase {
         }
     }
 
-    @Test(timeout = 15000)
+    @Test(timeout = 5000)
     public void sendWithoutData_returnsOkOnSend() throws Exception {
         try (JunitSocketClient client = new JunitSocketClient(serverPort, err)) {
             client.verify("ok DMTP");
