@@ -5,7 +5,7 @@ import dslab.exception.MissingInputException;
 import java.util.ArrayList;
 
 public class Message {
-    private ArrayList<Email> to;
+    private ArrayList<Email> to = new ArrayList<>();
     private Email from;
     private String subject;
     private String data;

@@ -6,18 +6,19 @@ import dslab.exception.MalformedInputException;
 import dslab.exception.MissingInputException;
 import dslab.exception.UnknownRecipientException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class ClientConnection implements Runnable {
     Logger logger = Logger.getLogger(ClientConnection.class.getName());
-    private Socket socket;
+    private final Socket socket;
+    private PrintWriter out;
+    private BufferedReader in;
 
-    private Message msg;
+    private Message msg = new Message();
 
     public ClientConnection(Socket connection) {
         this.socket = connection;
@@ -25,19 +26,28 @@ public class ClientConnection implements Runnable {
 
     @Override
     public void run() {
+        logger.finer("Preparing for DMTP communication in " + this.toString());
         try {
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.out = new PrintWriter(socket.getOutputStream(), true);
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out.println("ok DMTP");
 
             String userInput;
 
-            if (!("begin".equals(in.readLine()))) {
-                out.println("error protocol error");
+            try {
+                if (!("begin".equals(in.readLine()))) {
+                    out.println("error protocol error");
+                    shutdown();
+                }
+            } catch (SocketException e) {
+                // Thrown if socket has already been closed by shutdown() method
+                // TODO maybe send message that connection has been closed by server?
+                logger.finer("Received interrupt. Exiting " + this.toString());
                 shutdown();
             }
+            out.println("ok");
 
-            while ((userInput = in.readLine()) != null) {
+            while (!Thread.currentThread().isInterrupted() && (userInput = in.readLine()) != null) {
                 if ("quit".equals(userInput)) {
                     out.println("ok bye");
                     shutdown();
@@ -49,31 +59,33 @@ public class ClientConnection implements Runnable {
                         out.println(e.getMessage());
                     }
                 } else if ("to".equals(userInput.split("\\s+")[0])) {
+                    msg.setTo(new ArrayList<>());
                     String[] emailAddresses = userInput.split("\\s+")[1].split(",");
                     int count = 0;
-                    for (String emailAddress : emailAddresses) {
-                        try {
+                    try {
+                        for (String emailAddress : emailAddresses) {
                             msg.addTo(new Email(emailAddress));
                             count++;
-                        } catch (MalformedInputException mie) {
-                            out.println(mie.getMessage());
                         }
-                    }
-                    out.println("ok " + count);
-                } else if ("from".equals(userInput.split("\\s+")[0])) {
-                    try {
-                        msg.setFrom(new Email(userInput.split("\\s+")[1]));
+                        out.println("ok " + count);
                     } catch (MalformedInputException mie) {
                         out.println(mie.getMessage());
                     }
-                    out.println("ok");
+                } else if ("from".equals(userInput.split("\\s+")[0])) {
+                    try {
+                        Email from = new Email(userInput.split("\\s+")[1]);
+                        this.msg.setFrom(from);
+                        out.println("ok");
+                    } catch (MalformedInputException mie) {
+                        out.println(mie.getMessage());
+                    }
                 } else if ("subject".equals(userInput.split("\\s+")[0])) {
                     String subject = userInput.split("\\s+", 1)[1];
                     logger.info("Setting subject to: " + subject);
                     msg.setSubject(subject);
                     out.println("ok");
                 } else if ("data".equals(userInput.split("\\s+")[0])) {
-                    String data = userInput.split("\\s+", 1)[1];
+                    String data = userInput.split("\\s+", 2)[1];
                     logger.info("Setting data to: " + data);
                     msg.setData(data);
                     out.println("ok");
@@ -82,6 +94,9 @@ public class ClientConnection implements Runnable {
                     shutdown();
                 }
             }
+        } catch (InterruptedIOException ioe) {
+            logger.info("Received interrupt from parent. Shutting down...");
+            shutdown();
         } catch (IOException e) {
             logger.severe("Failed to get IO-Stream");
             e.printStackTrace();
@@ -90,16 +105,21 @@ public class ClientConnection implements Runnable {
     }
 
     public void shutdown() {
+        logger.info("Shutting down client connection " + this.toString());
         try {
-            socket.close();
+            if (socket != null)
+                socket.close();
+            in.close();
+            out.close();
         } catch (IOException e) {
-            logger.severe("Error closing socket " + socket.toString());
+            logger.severe("Error closing socket and/or IO-streams");
             e.printStackTrace();
         }
+        Thread.currentThread().interrupt();
     }
 
     public void sendMessage() throws MissingInputException {
         msg.allFieldsSet();
-        // TODO send message to mailbox servers or submit to asynchronous queue
+        // TODO send message to asynchronous queue managed by TransferServer
     }
 }
