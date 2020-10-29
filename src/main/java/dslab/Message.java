@@ -3,6 +3,8 @@ package dslab;
 import dslab.exception.MissingInputException;
 
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Message {
     private ArrayList<Email> to = new ArrayList<>();
@@ -29,6 +31,12 @@ public class Message {
 
     public void addTo(Email email) {
         to.add(email);
+    }
+
+    public String printTo() {
+        if (this.to.isEmpty())
+            return null;
+        return this.to.stream().map(Object::toString).collect(Collectors.joining(","));
     }
 
     public ArrayList<Email> getTo() {
@@ -61,5 +69,13 @@ public class Message {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    @Override
+    public String toString() {
+        return "from " + getFrom().toString() + "\n" +
+                "to " + printTo() + "\n" +
+                "subject " + getSubject() + "\n" +
+                "data " + getData() + "\n";
     }
 }
