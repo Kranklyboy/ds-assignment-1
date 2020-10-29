@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 import java.util.logging.Logger;
 
 public class ClientConnection implements Runnable {
@@ -20,8 +21,11 @@ public class ClientConnection implements Runnable {
 
     private Message msg = new Message();
 
-    public ClientConnection(Socket connection) {
+    private BlockingQueue<Message> blockingQueue;
+
+    public ClientConnection(Socket connection, BlockingQueue<Message> blockingQueue) {
         this.socket = connection;
+        this.blockingQueue = blockingQueue;
     }
 
     @Override
@@ -120,6 +124,7 @@ public class ClientConnection implements Runnable {
 
     public void sendMessage() throws MissingInputException {
         msg.allFieldsSet();
-        // TODO send message to asynchronous queue managed by TransferServer
+        TransferServer.Producer producer = new TransferServer.Producer(this.blockingQueue, this.msg);
+        new Thread(producer).start();
     }
 }

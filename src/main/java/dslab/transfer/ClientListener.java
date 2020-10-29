@@ -1,11 +1,14 @@
 package dslab.transfer;
 
+import dslab.Message;
+
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -16,9 +19,11 @@ public class ClientListener extends Thread {
     private final Logger logger = Logger.getLogger(ClientListener.class.getName());
     private final ArrayList<ClientConnection> clients = new ArrayList<>();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final BlockingQueue<Message> blockingQueue;
 
-    public ClientListener(ServerSocket serverSocket) {
+    public ClientListener(ServerSocket serverSocket, BlockingQueue<Message> blockingQueue) {
         this.serverSocket = serverSocket;
+        this.blockingQueue = blockingQueue;
     }
 
     @Override
@@ -28,7 +33,7 @@ public class ClientListener extends Thread {
             try {
                 Socket s = serverSocket.accept();
                 logger.fine("Processing incoming socket " + s.toString());
-                ClientConnection clientConnection = new ClientConnection(s);
+                ClientConnection clientConnection = new ClientConnection(s, this.blockingQueue);
                 clients.add(clientConnection);
                 executorService.submit(clientConnection);
             } catch (InterruptedIOException | SocketException e) {
