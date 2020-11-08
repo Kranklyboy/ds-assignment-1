@@ -14,9 +14,11 @@ import dslab.util.Config;
 
 public class MailboxServer implements IMailboxServer, Runnable {
     private static final Logger logger = Logger.getLogger(MailboxServer.class.getName());
-    private ServerSocket serverSocket;
+    private ServerSocket dmtpServerSocket;
+    private ServerSocket dmapServerSocket;
     private final Shell shell;
-    private final Integer serverPort;
+    private final Integer dmtpServerPort;
+    private final Integer dmapServerPort;
 
     /**
      * Creates a new server instance.
@@ -31,16 +33,18 @@ public class MailboxServer implements IMailboxServer, Runnable {
         this.shell = new Shell(in, out);
         this.shell.register(this);
         this.shell.setPrompt("Mailboxserver> ");
-        this.serverPort = config.getInt("tcp.port");
+        this.dmtpServerPort = config.getInt("dmtp.tcp.port");
+        this.dmapServerPort = config.getInt("dmap.tcp.port");
     }
 
     @Override
     public void run() {
-        logger.info("Creating serverSocket for " + this.toString());
+        logger.info("Creating DMTP serverSocket for TransferServer + " + this.toString());
         try {
-            this.serverSocket = new ServerSocket(serverPort);
+            this.dmtpServerSocket = new ServerSocket(dmtpServerPort);
+            this.dmapServerSocket = new ServerSocket(dmapServerPort);
         } catch (IOException e) {
-            logger.severe("Error creating serverSocket " + serverSocket.toString());
+            logger.severe("Error creating one of the two server sockets");
             e.printStackTrace();
             shutdown();
         }
@@ -53,10 +57,18 @@ public class MailboxServer implements IMailboxServer, Runnable {
     @Override
     public void shutdown() {
         try {
-            if (serverSocket != null)
-                serverSocket.close();
+            if (dmtpServerSocket != null)
+                dmtpServerSocket.close();
         } catch (IOException e) {
-            logger.severe("Error closing serverSocket " + serverSocket.toString());
+            logger.severe("Error closing DMTP serverSocket " + dmtpServerSocket.toString());
+            e.printStackTrace();
+        }
+
+        try {
+            if (dmapServerSocket != null)
+                dmapServerSocket.close();
+        } catch (IOException e) {
+            logger.severe("Error closing DMTP serverSocket " + dmapServerSocket.toString());
             e.printStackTrace();
         }
         throw new StopShellException();
