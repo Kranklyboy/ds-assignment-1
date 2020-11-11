@@ -53,6 +53,7 @@ public class TransferServer implements ITransferServer, Runnable {
             shutdown();
         }
         new ClientListener(serverSocket, blockingQueue).start();
+        // TODO start consumer thread
         this.shell.run();
     }
 
@@ -66,6 +67,7 @@ public class TransferServer implements ITransferServer, Runnable {
             logger.severe("Error closing serverSocket " + serverSocket.toString());
             e.printStackTrace();
         }
+        // TODO stop consumer thread(s)
         throw new StopShellException();
     }
 
