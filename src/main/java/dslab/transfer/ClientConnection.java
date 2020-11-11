@@ -84,12 +84,16 @@ public class ClientConnection implements Runnable {
                         out.println(mie.getMessage());
                     }
                 } else if ("subject".equals(userInput.split("\\s+")[0])) {
-                    String subject = userInput.split("\\s+", 1)[1];
+                    String subject = "";
+                    if (userInput.split("\\s+").length > 1)
+                        subject = userInput.split("\\s+", 2)[1];
                     logger.info("Setting subject to: " + subject);
                     msg.setSubject(subject);
                     out.println("ok");
                 } else if ("data".equals(userInput.split("\\s+")[0])) {
-                    String data = userInput.split("\\s+", 2)[1];
+                    String data = "";
+                    if (userInput.split("\\s+").length > 1)
+                        data = userInput.split("\\s+", 2)[1];
                     logger.info("Setting data to: " + data);
                     msg.setData(data);
                     out.println("ok");
@@ -123,8 +127,9 @@ public class ClientConnection implements Runnable {
     }
 
     public void sendMessage() throws MissingInputException {
-        msg.allFieldsSet();
+        this.msg.allFieldsSet();
         TransferServer.Producer producer = new TransferServer.Producer(this.blockingQueue, this.msg);
         new Thread(producer).start();
+        this.msg = new Message();
     }
 }

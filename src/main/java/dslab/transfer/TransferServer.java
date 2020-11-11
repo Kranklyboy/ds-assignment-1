@@ -35,10 +35,6 @@ public class TransferServer implements ITransferServer, Runnable {
      * @param out the output stream to write console output to
      */
     public TransferServer(String componentId, Config config, InputStream in, PrintStream out) {
-        Config earthPlanet = new Config("mailbox-earth-planet");
-        Config univerZe = new Config("mailbox-univer-ze");
-        mailboxServers.add(earthPlanet);
-        mailboxServers.add(univerZe);
         // TODO parse domains for mailbox servers
         this.shell = new Shell(in, out);
         this.shell.register(this);
