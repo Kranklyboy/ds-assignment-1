@@ -2,6 +2,8 @@ package dslab;
 
 import dslab.exception.MalformedInputException;
 
+import java.util.Objects;
+
 public class Email {
     private String username;
     private String domain;
@@ -42,5 +44,19 @@ public class Email {
     @Override
     public String toString() {
         return username + '@' + domain;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Email email = (Email) o;
+        return Objects.equals(getUsername(), email.getUsername()) &&
+                Objects.equals(getDomain(), email.getDomain());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUsername(), getDomain());
     }
 }
