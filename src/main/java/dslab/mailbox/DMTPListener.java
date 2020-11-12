@@ -50,7 +50,7 @@ public class DMTPListener extends Thread {
     }
 
     public void shutdown() {
-        logger.finer("Shutting down DMTPHandler " + this.toString());
+        logger.finer("Shutting down DMTPListener " + this.toString());
         for (DMTPConnection client : clients) {
             if (client != null)
                 client.shutdown();

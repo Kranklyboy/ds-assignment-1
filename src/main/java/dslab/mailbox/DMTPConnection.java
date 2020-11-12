@@ -87,12 +87,10 @@ public class DMTPConnection implements Runnable {
                     String subject = "";
                     if (userInput.split("\\s+").length > 1)
                         subject = userInput.split("\\s+", 2)[1];
-                    logger.info("Setting subject to: " + subject);
                     msg.setSubject(subject);
                     out.println("ok");
                 } else if ("data".equals(userInput.split("\\s+")[0])) {
                     String data = userInput.split("\\s+", 2)[1];
-                    logger.info("Setting data to: " + data);
                     msg.setData(data);
                     out.println("ok");
                 } else {
@@ -111,6 +109,7 @@ public class DMTPConnection implements Runnable {
     }
 
     private synchronized void storeMessage() throws UnknownRecipientException {
+        logger.info("Storing message " + msg.toString());
         String errorUnknownRecipient = "";
         for (Email recipient : this.msg.getTo()) {
             if (this.messageStorage.containsKey(recipient)) {
