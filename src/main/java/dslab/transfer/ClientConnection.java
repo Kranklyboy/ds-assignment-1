@@ -21,11 +21,8 @@ public class ClientConnection implements Runnable {
 
     private Message msg = new Message();
 
-    private BlockingQueue<Message> blockingQueue;
-
-    public ClientConnection(Socket connection, BlockingQueue<Message> blockingQueue) {
+    public ClientConnection(Socket connection) {
         this.socket = connection;
-        this.blockingQueue = blockingQueue;
     }
 
     @Override
@@ -128,7 +125,7 @@ public class ClientConnection implements Runnable {
 
     public void sendMessage() throws MissingInputException {
         this.msg.allFieldsSet();
-        TransferServer.Producer producer = new TransferServer.Producer(this.blockingQueue, this.msg);
+        TransferServer.Producer producer = new TransferServer.Producer(this.msg);
         new Thread(producer).start();
         this.msg = new Message();
     }

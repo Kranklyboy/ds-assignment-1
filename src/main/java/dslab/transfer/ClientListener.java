@@ -19,11 +19,9 @@ public class ClientListener extends Thread {
     private final Logger logger = Logger.getLogger(ClientListener.class.getName());
     private final ArrayList<ClientConnection> clients = new ArrayList<>();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-    private final BlockingQueue<Message> blockingQueue;
 
-    public ClientListener(ServerSocket serverSocket, BlockingQueue<Message> blockingQueue) {
+    public ClientListener(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
-        this.blockingQueue = blockingQueue;
     }
 
     @Override
@@ -33,7 +31,7 @@ public class ClientListener extends Thread {
             try {
                 Socket s = serverSocket.accept();
                 logger.fine("Processing incoming socket " + s.toString());
-                ClientConnection clientConnection = new ClientConnection(s, this.blockingQueue);
+                ClientConnection clientConnection = new ClientConnection(s);
                 clients.add(clientConnection);
                 executorService.submit(clientConnection);
             } catch (InterruptedIOException | SocketException e) {
