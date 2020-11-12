@@ -24,6 +24,8 @@ public class MailboxServer implements IMailboxServer, Runnable {
     private final Shell shell;
     private final Integer dmtpServerPort;
     private final Integer dmapServerPort;
+    private DMTPListener dmtpListener;
+    private DMAPListener dmapListener;
     private final ConcurrentHashMap<Email, LinkedList<Message>> messageStorage = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> userStorage = new ConcurrentHashMap<>();
 
@@ -67,7 +69,8 @@ public class MailboxServer implements IMailboxServer, Runnable {
             e.printStackTrace();
             shutdown();
         }
-        // TODO spawn listener for transfer servers (DMTPListener)
+        this.dmtpListener = new DMTPListener(this.dmtpServerSocket, this.messageStorage);
+        this.dmtpListener.start();
         // TODO spawn listener for user clients (DMAPListener)
         this.shell.run();
     }
@@ -80,6 +83,7 @@ public class MailboxServer implements IMailboxServer, Runnable {
         try {
             if (dmtpServerSocket != null)
                 dmtpServerSocket.close();
+            this.dmtpListener.interrupt();
         } catch (IOException e) {
             logger.severe("Error closing DMTP serverSocket " + dmtpServerSocket.toString());
             e.printStackTrace();
