@@ -60,7 +60,6 @@ public class DMTPConnection implements Runnable {
                         out.println("ok");
                     } catch (UnknownRecipientException e) {
                         out.println(e.getMessage());
-                        shutdown();
                     }
                 } else if ("to".equals(userInput.split("\\s+")[0])) {
                     msg.setTo(new ArrayList<>());
@@ -68,12 +67,17 @@ public class DMTPConnection implements Runnable {
                     int count = 0;
                     try {
                         for (String emailAddress : emailAddresses) {
-                            msg.addTo(new Email(emailAddress));
-                            count++;
+                            Email add = new Email(emailAddress);
+                            if (!this.messageStorage.containsKey(add)) {
+                                throw new UnknownRecipientException("error unknown recipient " + add.toString());
+                            } else {
+                                msg.addTo(add);
+                                count++;
+                            }
                         }
                         out.println("ok " + count);
-                    } catch (MalformedInputException mie) {
-                        out.println(mie.getMessage());
+                    } catch (MalformedInputException | UnknownRecipientException e) {
+                        out.println(e.getMessage());
                     }
                 } else if ("from".equals(userInput.split("\\s+")[0])) {
                     try {
