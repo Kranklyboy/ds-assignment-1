@@ -87,10 +87,7 @@ public class TransferServerProtocolTest extends TestBase {
             client.verify("ok DMTP");
             client.sendAndVerify("begin", "ok");
             client.sendAndVerify("from trillian@earth.planet", "ok");
-            client.sendAndVerify("to art@hur@earth.planet", "ok 1");
-            client.sendAndVerify("subject hello", "ok");
-            client.sendAndVerify("data hello from junit", "ok");
-            client.sendAndVerify("send", "error");
+            client.sendAndVerify("to art@hur@earth.planet", "error");
             client.sendAndVerify("quit", "ok bye");
         }
     }
@@ -101,10 +98,7 @@ public class TransferServerProtocolTest extends TestBase {
             client.verify("ok DMTP");
             client.sendAndVerify("begin", "ok");
             client.sendAndVerify("from trillian@earth.planet", "ok");
-            client.sendAndVerify("to arthur@", "ok 1");
-            client.sendAndVerify("subject hello", "ok");
-            client.sendAndVerify("data hello from junit", "ok");
-            client.sendAndVerify("send", "error");
+            client.sendAndVerify("to arthur@", "error");
             client.sendAndVerify("quit", "ok bye");
         }
     }
@@ -115,7 +109,7 @@ public class TransferServerProtocolTest extends TestBase {
             client.verify("ok DMTP");
             client.sendAndVerify("begin", "ok");
             client.sendAndVerify("from trillian@earth.planet", "ok");
-            client.sendAndVerify("to arthur@", "ok 1");
+            client.sendAndVerify("to arthur@earth.planet", "ok 1");
             client.sendAndVerify("data hello from junit", "ok");
             client.sendAndVerify("send", "ok");
             client.sendAndVerify("quit", "ok bye");
@@ -128,7 +122,7 @@ public class TransferServerProtocolTest extends TestBase {
             client.verify("ok DMTP");
             client.sendAndVerify("begin", "ok");
             client.sendAndVerify("from trillian@earth.planet", "ok");
-            client.sendAndVerify("to arthur@", "ok 1");
+            client.sendAndVerify("to arthur@earth.planet", "ok 1");
             client.sendAndVerify("subject hello", "ok");
             client.sendAndVerify("send", "ok");
             client.sendAndVerify("quit", "ok bye");
