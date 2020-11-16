@@ -29,6 +29,8 @@ public class MailboxServer implements IMailboxServer, Runnable {
     private final ConcurrentHashMap<Email, LinkedList<Message>> messageStorage = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, String> userStorage = new ConcurrentHashMap<>();
 
+    public static volatile Integer id;
+
     /**
      * Creates a new server instance.
      *
@@ -50,6 +52,8 @@ public class MailboxServer implements IMailboxServer, Runnable {
             Email current = new Email(key, domain);
             messageStorage.put(current, new LinkedList<>());
         }
+
+        id = 0;
 
         this.shell = new Shell(in, out);
         this.shell.register(this);
@@ -78,7 +82,6 @@ public class MailboxServer implements IMailboxServer, Runnable {
     @Command
     @Override
     public void shutdown() {
-        // TODO shutdown DMTPListener
         // TODO shutdown DMAPListener
         try {
             if (dmtpServerSocket != null)

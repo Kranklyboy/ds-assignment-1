@@ -11,6 +11,7 @@ public class Message {
     private Email from;
     private String subject;
     private String data;
+    private Integer id;
 
     public Message() {
     }
@@ -69,6 +70,14 @@ public class Message {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     @Override

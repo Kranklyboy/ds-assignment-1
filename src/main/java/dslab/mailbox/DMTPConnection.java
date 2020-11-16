@@ -110,6 +110,7 @@ public class DMTPConnection implements Runnable {
 
     private synchronized void storeMessage() throws UnknownRecipientException {
         logger.info("Storing message " + msg.toString());
+        this.msg.setId(MailboxServer.id++);
         String errorUnknownRecipient = "";
         for (Email recipient : this.msg.getTo()) {
             if (this.messageStorage.containsKey(recipient)) {
