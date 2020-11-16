@@ -4,13 +4,11 @@ import dslab.Email;
 import dslab.Message;
 import dslab.exception.MalformedInputException;
 import dslab.exception.MissingInputException;
-import dslab.exception.UnknownRecipientException;
 
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
 import java.util.logging.Logger;
 
 public class ClientConnection implements Runnable {
