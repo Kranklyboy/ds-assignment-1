@@ -42,11 +42,13 @@ public class TransferServer implements ITransferServer, Runnable {
         Config earthplanet = new Config("mailbox-earth-planet.properties");
         mailboxServers.put(univerze.getString("domain"), univerze.getInt("dmtp.tcp.port"));
         mailboxServers.put(earthplanet.getString("domain"), earthplanet.getInt("dmtp.tcp.port"));
-        this.consumer = new Consumer(mailboxServers);
+        String monitoringHost = config.getString("monitoring.host");
+        Integer monitoringPort = config.getInt("monitoring.port");
+        this.serverPort = config.getInt("tcp.port");
+        this.consumer = new Consumer(mailboxServers, monitoringHost, monitoringPort, "127.0.0.1", this.serverPort);
         this.shell = new Shell(in, out);
         this.shell.register(this);
         this.shell.setPrompt("Transferserver> ");
-        this.serverPort = config.getInt("tcp.port");
     }
 
     @Override
@@ -118,10 +120,21 @@ public class TransferServer implements ITransferServer, Runnable {
 
     static class Consumer extends Thread {
         private final HashMap<String, Integer> mailboxServers;
+        private final String monitoringHost;
+        private final Integer monitoringPort;
+        private final String transferHost;
+        private final Integer transferPort;
 
-        Consumer(HashMap<String, Integer> mailboxServers) {
+        Consumer(HashMap<String, Integer> mailboxServers,
+                 String monitoringHost,
+                 Integer monitoringPort,
+                 String transferHost,
+                 Integer transferPort) {
             this.mailboxServers = mailboxServers;
-            logger.info("MailboxServers: " + mailboxServers.toString());
+            this.monitoringHost = monitoringHost;
+            this.monitoringPort = monitoringPort;
+            this.transferHost = transferHost;
+            this.transferPort = transferPort;
         }
 
         @Override
@@ -151,7 +164,6 @@ public class TransferServer implements ITransferServer, Runnable {
                             logger.info("Domain lookup successful. Port is: " + port);
                         } catch (UnknownDomain e) {
                             sendErrorMail(msg, e.getMessage());
-                            // TODO exit consumer?
                             shutdown();
                             continue;
                         }
@@ -186,6 +198,7 @@ public class TransferServer implements ITransferServer, Runnable {
                 socketIn.close();
                 socketOut.close();
                 socket.close();
+                sendMonitoringMessage(msg);
             } catch (IOException e) {
                 sendErrorMail(msg, "error failed to connect to server");
             }
@@ -239,9 +252,28 @@ public class TransferServer implements ITransferServer, Runnable {
                 socketIn.close();
                 socketOut.close();
                 socket.close();
+                sendMonitoringMessage(msg);
             } catch (IOException e) {
                 logger.severe("Sending error mail failed because socket communication failed");
             }
+        }
+
+        private void sendMonitoringMessage(Message msg) {
+            DatagramSocket socket;
+            try {
+                socket = new DatagramSocket();
+            } catch (SocketException e) {
+                logger.severe("Failed to create DatagramSocket!");
+                return;
+            }
+            byte[] sendBuffer = (transferHost + ":" + transferPort + " " + msg.getFrom().toString()).getBytes();
+            try {
+                DatagramPacket packet = new DatagramPacket(sendBuffer, 1024, Inet4Address.getByName(monitoringHost), monitoringPort);
+                socket.send(packet);
+            } catch (IOException e) {
+                logger.severe("Failed to send packet to " + monitoringHost + " on port " + monitoringPort);
+            }
+            socket.close();
         }
 
         private void shutdown() {
