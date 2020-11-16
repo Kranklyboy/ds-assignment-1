@@ -2,10 +2,8 @@ package dslab.transfer;
 
 import java.io.*;
 import java.net.*;
-import java.rmi.ConnectIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
