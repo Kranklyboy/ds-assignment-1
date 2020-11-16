@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 public class Message {
     private ArrayList<Email> to = new ArrayList<>();
     private Email from;
-    private String subject;
-    private String data;
+    private String subject = "";
+    private String data = "";
     private Integer id;
 
     public Message() {
@@ -78,6 +78,10 @@ public class Message {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String listMessage() {
+        return getId() + " " + getFrom() + " " + getSubject();
     }
 
     @Override

@@ -75,7 +75,8 @@ public class MailboxServer implements IMailboxServer, Runnable {
         }
         this.dmtpListener = new DMTPListener(this.dmtpServerSocket, this.messageStorage);
         this.dmtpListener.start();
-        // TODO spawn listener for user clients (DMAPListener)
+        this.dmapListener = new DMAPListener(this.dmapServerSocket, this.messageStorage, this.userStorage);
+        this.dmapListener.start();
         this.shell.run();
     }
 
@@ -95,6 +96,7 @@ public class MailboxServer implements IMailboxServer, Runnable {
         try {
             if (dmapServerSocket != null)
                 dmapServerSocket.close();
+            this.dmapListener.interrupt();
         } catch (IOException e) {
             logger.severe("Error closing DMTP serverSocket " + dmapServerSocket.toString());
             e.printStackTrace();
