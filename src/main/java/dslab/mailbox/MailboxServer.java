@@ -83,7 +83,6 @@ public class MailboxServer implements IMailboxServer, Runnable {
     @Command
     @Override
     public void shutdown() {
-        // TODO shutdown DMAPListener
         try {
             if (dmtpServerSocket != null)
                 dmtpServerSocket.close();
