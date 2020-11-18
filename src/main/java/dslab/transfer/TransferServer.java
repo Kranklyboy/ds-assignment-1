@@ -268,7 +268,7 @@ public class TransferServer implements ITransferServer, Runnable {
             }
             byte[] sendBuffer = (transferHost + ":" + transferPort + " " + msg.getFrom().toString()).getBytes();
             try {
-                DatagramPacket packet = new DatagramPacket(sendBuffer, 1024, Inet4Address.getByName(monitoringHost), monitoringPort);
+                DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, Inet4Address.getByName(monitoringHost), monitoringPort);
                 socket.send(packet);
             } catch (IOException e) {
                 logger.severe("Failed to send packet to " + monitoringHost + " on port " + monitoringPort);
