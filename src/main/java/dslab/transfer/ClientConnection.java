@@ -102,7 +102,6 @@ public class ClientConnection implements Runnable {
             shutdown();
         } catch (IOException e) {
             logger.severe("Failed to get IO-Stream");
-            e.printStackTrace();
             shutdown();
         }
     }
