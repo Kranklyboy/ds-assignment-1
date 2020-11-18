@@ -48,13 +48,21 @@ public class DMAPConnection implements Runnable {
                     listMessages();
                 } else if ("delete".equals(userInput.split("\\s+")[0])) {
                     if (userInput.split("\\s+").length == 2) {
-                        deleteMessage(userInput.split("\\s+")[1]);
+                        try {
+                            deleteMessage(userInput.split("\\s+")[1]);
+                        } catch (MessageNotFoundException e) {
+                            out.println(e.getMessage());
+                        }
                     } else {
                         out.println("Please supply a message id to delete!");
                     }
                 } else if ("show".equals(userInput.split("\\s+")[0])) {
                     if (userInput.split("\\s+").length == 2) {
-                        showMessage(userInput.split("\\s+")[1]);
+                        try {
+                            showMessage(userInput.split("\\s+")[1]);
+                        } catch (MessageNotFoundException e) {
+                            out.println(e.getMessage());
+                        }
                     } else {
                         out.println("Please supply a message id to show!");
                     }
@@ -70,8 +78,6 @@ public class DMAPConnection implements Runnable {
             logger.severe("Failed to get IO-Stream");
             e.printStackTrace();
             shutdown();
-        } catch (MessageNotFoundException e) {
-            out.println(e.getMessage());
         }
     }
 
@@ -164,6 +170,7 @@ public class DMAPConnection implements Runnable {
         for (Message m : storage.get(currentUser)) {
             if (m.getId() == i) {
                 storage.get(currentUser).remove(m);
+                out.println("ok");
                 return;
             }
         }

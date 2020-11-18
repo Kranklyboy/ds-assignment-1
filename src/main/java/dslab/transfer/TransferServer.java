@@ -162,12 +162,10 @@ public class TransferServer implements ITransferServer, Runnable {
                         try {
                             port = domainLookup(recipient);
                             logger.info("Domain lookup successful. Port is: " + port);
+                            replayMessage(msg, port);
                         } catch (UnknownDomain e) {
                             sendErrorMail(msg, e.getMessage());
-                            shutdown();
-                            continue;
                         }
-                        replayMessage(msg, port);
                     }
                     lock.notify();
                 }

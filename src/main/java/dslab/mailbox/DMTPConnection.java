@@ -9,6 +9,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -64,6 +65,7 @@ public class DMTPConnection implements Runnable {
                 } else if ("to".equals(userInput.split("\\s+")[0])) {
                     msg.setTo(new ArrayList<>());
                     String[] emailAddresses = userInput.split("\\s+")[1].split(",");
+                    logger.info("Split EMail addresses: " + Arrays.toString(emailAddresses));
                     int count = 0;
                     try {
                         for (String emailAddress : emailAddresses) {
