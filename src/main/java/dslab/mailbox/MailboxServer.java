@@ -73,7 +73,7 @@ public class MailboxServer implements IMailboxServer, Runnable {
             e.printStackTrace();
             shutdown();
         }
-        this.dmtpListener = new DMTPListener(this.dmtpServerSocket, this.messageStorage);
+        this.dmtpListener = new DMTPListener(this.dmtpServerSocket, this.messageStorage, this.userStorage, this.domain);
         this.dmtpListener.start();
         this.dmapListener = new DMAPListener(this.dmapServerSocket, this.messageStorage, this.userStorage);
         this.dmapListener.start();

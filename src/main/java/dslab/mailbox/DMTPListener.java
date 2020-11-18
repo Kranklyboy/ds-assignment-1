@@ -21,11 +21,15 @@ public class DMTPListener extends Thread {
     private final Logger logger = Logger.getLogger(DMTPListener.class.getName());
     private final ArrayList<DMTPConnection> clients = new ArrayList<>();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-    private final ConcurrentHashMap<Email, LinkedList<Message>> storage;
+    private final ConcurrentHashMap<Email, LinkedList<Message>> messageStorage;
+    private final ConcurrentHashMap<String, String> userStorage;
+    private final String domain;
 
-    public DMTPListener(ServerSocket serverSocket, ConcurrentHashMap<Email, LinkedList<Message>> storage) {
+    public DMTPListener(ServerSocket serverSocket, ConcurrentHashMap<Email, LinkedList<Message>> storage, ConcurrentHashMap<String, String> userStorage, String domain) {
         this.serverSocket = serverSocket;
-        this.storage = storage;
+        this.messageStorage = storage;
+        this.userStorage = userStorage;
+        this.domain = domain;
     }
 
     @Override
@@ -35,7 +39,7 @@ public class DMTPListener extends Thread {
             try {
                 Socket s = serverSocket.accept();
                 logger.fine("Processing incoming socket " + s.toString());
-                DMTPConnection dmtpConnection = new DMTPConnection(s, storage);
+                DMTPConnection dmtpConnection = new DMTPConnection(s, messageStorage, userStorage, domain);
                 clients.add(dmtpConnection);
                 executorService.submit(dmtpConnection);
             } catch (InterruptedIOException | SocketException e) {

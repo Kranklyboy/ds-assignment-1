@@ -22,11 +22,16 @@ public class DMTPConnection implements Runnable {
 
     private Message msg = new Message();
 
-    private final ConcurrentHashMap<Email, LinkedList<Message>> messageStorage;
+    private final String domain;
 
-    public DMTPConnection(Socket connection, ConcurrentHashMap<Email, LinkedList<Message>> messageStorage) {
+    private final ConcurrentHashMap<Email, LinkedList<Message>> messageStorage;
+    private final ConcurrentHashMap<String, String> userStorage;
+
+    public DMTPConnection(Socket connection, ConcurrentHashMap<Email, LinkedList<Message>> messageStorage, ConcurrentHashMap<String, String> userStorage, String domain) {
         this.socket = connection;
         this.messageStorage = messageStorage;
+        this.userStorage = userStorage;
+        this.domain = domain;
     }
 
     @Override
@@ -69,16 +74,22 @@ public class DMTPConnection implements Runnable {
                     int count = 0;
                     try {
                         for (String emailAddress : emailAddresses) {
+                            logger.info("Current email address in msg.getTo(): " + emailAddress);
                             Email add = new Email(emailAddress);
-                            if (!this.messageStorage.containsKey(add)) {
-                                throw new UnknownRecipientException("error unknown recipient " + add.toString());
-                            } else {
-                                msg.addTo(add);
-                                count++;
+                            if (this.domain.equals(add.getDomain())) {
+                                logger.info("Address " + emailAddress + " belongs to this domain " + this.domain);
+                                if (!this.userStorage.containsKey(add.getUsername())) {
+                                    logger.info("Our userStorage in domain " + this.domain + " does not contain user " + add.getUsername());
+                                    out.println("error unknown recipient " + add.toString());
+                                } else {
+                                    logger.info("Address " + add.toString() + " belongs to this domain and user exists. Adding address to msg.To() field");
+                                    msg.addTo(add);
+                                    count++;
+                                }
                             }
                         }
                         out.println("ok " + count);
-                    } catch (MalformedInputException | UnknownRecipientException e) {
+                    } catch (MalformedInputException e) {
                         out.println(e.getMessage());
                     }
                 } else if ("from".equals(userInput.split("\\s+")[0])) {
