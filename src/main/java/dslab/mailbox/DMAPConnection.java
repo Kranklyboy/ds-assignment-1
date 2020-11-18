@@ -34,7 +34,6 @@ public class DMAPConnection implements Runnable {
             this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out.println("ok DMAP");
             loginLoop();
-            out.println("ok");
 
             String userInput;
             while (!Thread.currentThread().isInterrupted() && (userInput = in.readLine()) != null) {
@@ -98,6 +97,7 @@ public class DMAPConnection implements Runnable {
                                     // Set current user if login successful
                                     currentUser = email;
                                     logger.info("User successfully logged in: " + currentUser.toString());
+                                    out.println("ok");
                                     return;
                                 }
                             }
