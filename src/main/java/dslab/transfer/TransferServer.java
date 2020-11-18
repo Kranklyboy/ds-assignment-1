@@ -157,6 +157,9 @@ public class TransferServer implements ITransferServer, Runnable {
                     logger.info("Queue not empty. Processing message...");
                     Message msg = blockingQueue.take();
                     logger.info("Took message " + msg.toString() + " from queue");
+                    HashMap<String, Boolean> sent = new HashMap<>();
+                    sent.put("earth.planet", false);
+                    sent.put("univer.ze", false);
                     for (Email recipient : msg.getTo()) {
                         logger.info("msg.getTo() contains: " + msg.getTo().toString());
                         logger.info("Trying to send message to " + recipient.toString());
@@ -164,7 +167,10 @@ public class TransferServer implements ITransferServer, Runnable {
                         try {
                             port = domainLookup(recipient);
                             logger.info("Domain lookup successful. Port is: " + port);
-                            replayMessage(msg, port);
+                            if (!sent.get(recipient.getDomain())) {
+                                replayMessage(msg, port);
+                                sent.put(recipient.getDomain(), true);
+                            }
                         } catch (UnknownDomain e) {
                             sendErrorMail(msg, e.getMessage());
                         }

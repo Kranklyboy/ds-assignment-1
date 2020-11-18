@@ -128,9 +128,23 @@ public class DMTPConnection implements Runnable {
     private synchronized void storeMessage() {
         logger.info("Storing message " + msg.toString());
         this.msg.setId(MailboxServer.id++);
+        boolean alreadyPresent;
         for (Email recipient : this.msg.getTo()) {
+            alreadyPresent = false;
+            logger.info("storeMessage(): checking if msg " + msg.listMessage() + " already exists for recipient " + recipient.toString());
             if (this.messageStorage.containsKey(recipient)) {
-                this.messageStorage.get(recipient).add(this.msg);
+                // Check if message already exists for user
+                for (Message m : this.messageStorage.get(recipient)) {
+                    if (this.msg.getId().equals(m.getId())) {
+                        logger.info("storeMessage(): msg " + msg.listMessage() + " already exists for recipient " + recipient.toString());
+                        alreadyPresent = true;
+                        break;
+                    }
+                }
+                // Save only if message doesn't already exist
+                if (!alreadyPresent) {
+                    this.messageStorage.get(recipient).add(this.msg);
+                }
             }
         }
         this.msg = new Message();
