@@ -61,12 +61,8 @@ public class DMTPConnection implements Runnable {
                     out.println("ok bye");
                     shutdown();
                 } else if ("send".equals(userInput)) {
-                    try {
-                        storeMessage();
-                        out.println("ok");
-                    } catch (UnknownRecipientException e) {
-                        out.println(e.getMessage());
-                    }
+                    storeMessage();
+                    out.println("ok");
                 } else if ("to".equals(userInput.split("\\s+")[0])) {
                     msg.setTo(new ArrayList<>());
                     String[] emailAddresses = userInput.split("\\s+")[1].split(",");
@@ -86,6 +82,10 @@ public class DMTPConnection implements Runnable {
                                     msg.addTo(add);
                                     count++;
                                 }
+                            } else {
+                                logger.info("Address " + emailAddress + " does not belong to this domain. Adding anyway...");
+                                msg.addTo(add);
+                                count++;
                             }
                         }
                         out.println("ok " + count);
@@ -125,21 +125,14 @@ public class DMTPConnection implements Runnable {
         }
     }
 
-    private synchronized void storeMessage() throws UnknownRecipientException {
+    private synchronized void storeMessage() {
         logger.info("Storing message " + msg.toString());
         this.msg.setId(MailboxServer.id++);
-        String errorUnknownRecipient = "";
         for (Email recipient : this.msg.getTo()) {
             if (this.messageStorage.containsKey(recipient)) {
                 this.messageStorage.get(recipient).add(this.msg);
-            } else {
-                if (errorUnknownRecipient.isBlank())
-                    errorUnknownRecipient = "error unknown recipient " + recipient.getUsername();
             }
         }
-
-        if (!errorUnknownRecipient.isBlank())
-            throw new UnknownRecipientException(errorUnknownRecipient);
         this.msg = new Message();
     }
 
