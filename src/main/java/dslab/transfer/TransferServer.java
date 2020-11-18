@@ -158,6 +158,8 @@ public class TransferServer implements ITransferServer, Runnable {
                     Message msg = blockingQueue.take();
                     logger.info("Took message " + msg.toString() + " from queue");
                     for (Email recipient : msg.getTo()) {
+                        logger.info("msg.getTo() contains: " + msg.getTo().toString());
+                        logger.info("Trying to send message to " + recipient.toString());
                         int port;
                         try {
                             port = domainLookup(recipient);
