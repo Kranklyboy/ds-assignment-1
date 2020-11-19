@@ -219,18 +219,19 @@ public class TransferServer implements ITransferServer, Runnable {
 
         private void sendErrorMail(Message msg, String error) {
             logger.info("Trying to send error mail to address " + msg.getFrom());
+            Message errorMessage = msg;
             int port;
             try {
-                port = domainLookup(msg.getFrom());
+                port = domainLookup(errorMessage.getFrom());
             } catch (UnknownDomain e) {
                 logger.severe("Sending error mail failed because sender domain is unknown");
                 return;
             }
             ArrayList<Email> newTo = new ArrayList<>();
-            newTo.add(msg.getFrom());
-            msg.setTo(newTo);
+            newTo.add(errorMessage.getFrom());
+            errorMessage.setTo(newTo);
             try {
-                msg.setFrom(new Email("mailer@127.0.0.1"));
+                errorMessage.setFrom(new Email("mailer@127.0.0.1"));
             } catch (MalformedInputException e) {
                 logger.severe("The server's E-Mail address is wrong. This should not be happening!");
                 e.printStackTrace();
@@ -243,13 +244,13 @@ public class TransferServer implements ITransferServer, Runnable {
                 socketIn.readLine();
                 socketOut.println("begin");
                 socketIn.readLine();
-                socketOut.println("subject " + msg.getSubject());
+                socketOut.println("subject " + errorMessage.getSubject());
                 socketIn.readLine();
                 socketOut.println("data " + error);
                 socketIn.readLine();
-                socketOut.println("to " + msg.printTo());
+                socketOut.println("to " + errorMessage.printTo());
                 socketIn.readLine();
-                socketOut.println("from " + msg.getFrom().toString());
+                socketOut.println("from " + errorMessage.getFrom().toString());
                 socketIn.readLine();
                 socketOut.println("send");
                 String result = socketIn.readLine();
@@ -258,7 +259,7 @@ public class TransferServer implements ITransferServer, Runnable {
                 socketIn.close();
                 socketOut.close();
                 socket.close();
-                sendMonitoringMessage(msg);
+                sendMonitoringMessage(errorMessage);
             } catch (IOException e) {
                 logger.severe("Sending error mail failed because socket communication failed");
             }

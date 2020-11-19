@@ -88,7 +88,8 @@ public class DMTPConnection implements Runnable {
                                 count++;
                             }
                         }
-                        out.println("ok " + count);
+                        if (count != 0)
+                            out.println("ok " + count);
                     } catch (MalformedInputException e) {
                         out.println(e.getMessage());
                     }
