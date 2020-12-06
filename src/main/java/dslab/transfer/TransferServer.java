@@ -15,7 +15,7 @@ import dslab.ComponentFactory;
 import dslab.Email;
 import dslab.Message;
 import dslab.exception.MalformedInputException;
-import dslab.exception.UnknownDomain;
+import dslab.exception.UnknownDomainException;
 import dslab.util.Config;
 
 public class TransferServer implements ITransferServer, Runnable {
@@ -171,7 +171,7 @@ public class TransferServer implements ITransferServer, Runnable {
                                 replayMessage(msg, port);
                                 sent.put(recipient.getDomain(), true);
                             }
-                        } catch (UnknownDomain e) {
+                        } catch (UnknownDomainException e) {
                             sendErrorMail(msg, e.getMessage());
                         }
                     }
@@ -210,11 +210,11 @@ public class TransferServer implements ITransferServer, Runnable {
             }
         }
 
-        private int domainLookup(Email email) throws UnknownDomain {
+        private int domainLookup(Email email) throws UnknownDomainException {
             logger.info("Performing domain lookup for address " + email.toString());
             if (this.mailboxServers.containsKey(email.getDomain()))
                 return this.mailboxServers.get(email.getDomain());
-            throw new UnknownDomain("error domain not found: " + email.getDomain());
+            throw new UnknownDomainException("error domain not found: " + email.getDomain());
         }
 
         private void sendErrorMail(Message msg, String error) {
@@ -223,7 +223,7 @@ public class TransferServer implements ITransferServer, Runnable {
             int port;
             try {
                 port = domainLookup(errorMessage.getFrom());
-            } catch (UnknownDomain e) {
+            } catch (UnknownDomainException e) {
                 logger.severe("Sending error mail failed because sender domain is unknown");
                 return;
             }
